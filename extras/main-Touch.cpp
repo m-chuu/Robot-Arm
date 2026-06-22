@@ -186,7 +186,7 @@ void printHelp() {
   Serial.println(F("  Rgt/Lft  (or d / a)  jog COARSE (+/- 50 us)"));
   Serial.println(F("  c        go to center (1500 us)"));
   Serial.println(F("  t        go to a typed pulse in us, then Enter"));
-  Serial.println(F("  p        jump joint 5 (Wrist Roll) to 1040 us"));
+  Serial.println(F("  p        jump joint 5 (Wrist Roll) to 1050 us"));
   Serial.println(F("--- step 1: capture the safe travel limits (the PWM values) ---"));
   Serial.println(F("  [        mark current pulse as MIN PWM"));
   Serial.println(F("  ]        mark current pulse as MAX PWM"));
@@ -405,10 +405,10 @@ void handleKey(int b) {
     case 'o': pwm.setPWM(s.channel, 0, 0);
               Serial.printf("\n%s released (limp). Any move re-engages it.\n", SERVO_NAME[activeIdx]); break;
 
-    case 'p': {  // jump joint 5 (Wrist Roll) to 1040 us
+    case 'p': {  // jump joint 5 (Wrist Roll) to 1050 us
       activeIdx = 4;
       ServoCal &j5 = servos[activeIdx];
-      rampTo(j5, 1040);
+      rampTo(j5, 1050);
       Serial.printf("\nJoint 5 (%s) -> %d %s.\n",
                     SERVO_NAME[activeIdx], reportPwm(j5.currentUs), pwmUnit());
       printStatus();
