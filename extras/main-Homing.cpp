@@ -162,7 +162,13 @@ void runScript() {
     moveToPose(sequence[i].pose, sequence[i + 1].pose);
   }
 
-  Serial.println(">>> DONE <<<");
+  Serial.println(">>> SEQUENCE COMPLETE <<<");
+
+  // ===================== AUTO RETURN HOME =====================
+  Serial.println("Returning to HOME position...");
+  delay(300);
+  goHome();
+
   isRunning = false;
 }
 
