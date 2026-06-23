@@ -52,7 +52,7 @@ int curG=30, curB=135, curS=90, curE=90, curWP=90, curWR=90;
 bool isRunning = false;
 
 // ===================== HOME POSITION =====================
-const Pose HOME_POSE = {30, 145, 100, 80, 140, 100};
+const Pose HOME_POSE = {30, 158,100, 80, 140, 100};
 
 // ===================== PWM =====================
 void setServoSafe(uint8_t ch, int angle, JointLimits limit, int range) {
@@ -69,12 +69,15 @@ void updateRobot() {
   setServoSafe(WRIST_R_CH,  curWR, LIMIT_WR, 180);
 }
 
-// ===================== MOTION ENGINE =====================
-void moveToPose(Pose a, Pose b, int steps = 60, int delayMs = 25) {
+// ===================== SMOOTH MOTION ENGINE =====================
+void moveToPose(Pose a, Pose b, int steps = 80, int delayMs = 15) {
 
   for (int i = 0; i <= steps; i++) {
 
     float t = (float)i / steps;
+
+    // ===================== S-CURVE (SMOOTHSTEP) =====================
+    t = t * t * (3.0f - 2.0f * t);
 
     curG  = a.g  + (b.g  - a.g)  * t;
     curB  = a.b  + (b.b  - a.b)  * t;
@@ -95,7 +98,6 @@ void goHome() {
 
   Pose start = {curG, curB, curS, curE, curWP, curWR};
 
-  // STEP 1: RETRACT WRIST
   Pose retract = {
     HOME_POSE.g,
     curB,
@@ -107,7 +109,6 @@ void goHome() {
 
   moveToPose(start, retract);
 
-  // STEP 2: ELEVATE ARM
   Pose elevate = {
     HOME_POSE.g,
     curB,
@@ -119,7 +120,6 @@ void goHome() {
 
   moveToPose(retract, elevate);
 
-  // STEP 3: ALIGN BASE
   Pose align = {
     HOME_POSE.g,
     HOME_POSE.b,
@@ -131,7 +131,6 @@ void goHome() {
 
   moveToPose(elevate, align);
 
-  // STEP 4: FINAL HOME POSITION
   moveToPose(align, HOME_POSE);
 
   curG  = HOME_POSE.g;
@@ -162,7 +161,12 @@ void runScript() {
     moveToPose(sequence[i].pose, sequence[i + 1].pose);
   }
 
-  Serial.println(">>> DONE <<<");
+  Serial.println(">>> SEQUENCE COMPLETE <<<");
+
+  delay(300);
+  Serial.println("Returning to HOME...");
+  goHome();
+
   isRunning = false;
 }
 
@@ -179,7 +183,6 @@ void setup() {
 
   delay(1000);
 
-  // AUTO HOME ON STARTUP
   goHome();
 
   Serial.println("\nSYSTEM READY");
